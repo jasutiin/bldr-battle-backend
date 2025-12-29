@@ -43,3 +43,27 @@ resource "aws_lambda_function" "leaderboard_reset_function" {
     Application = "example"
   }
 }
+
+module "eventbridge" {
+  source = "terraform-aws-modules/eventbridge/aws"
+
+  create_bus = false # using the default bus and not creating a new one is sufficient
+
+  rules = {
+    bldr_battle_leaderboard_reset = {
+      description         = "Trigger for a leaderboard reset lambda"
+      schedule_expression = "rate(1 minute)" # run every minute for testing
+      # schedule_expression = "cron(0 12 * * ? *)" # run everyday at 12pm
+    }
+  }
+
+  targets = {
+    bldr_battle_leaderboard_reset = [
+      {
+        name  = "bldr-battle-leaderboard-reset-cron"
+        arn   = aws_lambda_function.leaderboard_reset_function.arn
+        input = jsonencode({"key1": "justine"})
+      }
+    ]
+  }
+}
