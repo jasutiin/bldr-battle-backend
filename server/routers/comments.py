@@ -1,9 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.engine.base import Engine
+from db import get_db
 
 router = APIRouter()
 
 @router.get("/climbs/{climb_id}/comments", tags=["comments"])
-async def get_comments(climb_id: int):
+async def get_comments(climb_id: int, db: Engine = Depends(get_db)):
     """
     Returns a list of comments for a specific climb.
     
@@ -15,7 +17,7 @@ async def get_comments(climb_id: int):
 
 
 @router.post("/climbs/{climb_id}/comments", tags=["comments"])
-async def add_comment(climb_id: int):
+async def add_comment(climb_id: int, db: Engine = Depends(get_db)):
     """
     Adds a new comment to a climb.
     
@@ -27,7 +29,7 @@ async def add_comment(climb_id: int):
 
 
 @router.patch("/comments/{comment_id}", tags=["comments"])
-async def edit_comment(comment_id: int):
+async def edit_comment(comment_id: int, db: Engine = Depends(get_db)):
     """
     Edits a comment.
     
@@ -39,7 +41,7 @@ async def edit_comment(comment_id: int):
 
 
 @router.delete("/comments/{comment_id}", tags=["comments"])
-async def delete_comment(comment_id: int):
+async def delete_comment(comment_id: int, db: Engine = Depends(get_db)):
     """
     Deletes a comment.
     

@@ -1,4 +1,7 @@
 from fastapi import FastAPI
+from sqlalchemy import create_engine
+from dotenv import load_dotenv
+import os
 
 from routers import users, climbs, comments, admin
 

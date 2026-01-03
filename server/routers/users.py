@@ -1,9 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.engine.base import Engine
+from db import get_db
 
 router = APIRouter()
 
 @router.get("/users/{user_id}", tags=["users"])
-async def get_user(user_id: int):
+async def get_user(user_id: int, db: Engine = Depends(get_db)):
     """
     Retrieve a user by their user Id.
 
@@ -15,7 +17,7 @@ async def get_user(user_id: int):
 
 
 @router.post("/users", tags=["users"])
-async def add_user():
+async def add_user(db: Engine = Depends(get_db)):
     """
     Create a new user.
     """
@@ -24,7 +26,7 @@ async def add_user():
 
 
 @router.patch("/users/{user_id}", tags=["users"])
-async def edit_user(user_id: int):
+async def edit_user(user_id: int, db: Engine = Depends(get_db)):
     """
     Edit an existing user's information.
 
@@ -36,7 +38,7 @@ async def edit_user(user_id: int):
 
 
 @router.delete("/users/{user_id}", tags=["users"])
-async def delete_user(user_id: int):
+async def delete_user(user_id: int, db: Engine = Depends(get_db)):
     """
     Delete a user by their user Id.
 

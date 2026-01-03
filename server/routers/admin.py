@@ -1,9 +1,11 @@
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+from sqlalchemy.engine.base import Engine
+from db import get_db
 
 router = APIRouter()
 
 @router.get("/admin/climbs", tags=["climbs"])
-async def get_unverified_climbs():
+async def get_unverified_climbs(db: Engine = Depends(get_db)):
     """
     Retrieve unverified climbs for an admin's feed.
     """
@@ -11,7 +13,7 @@ async def get_unverified_climbs():
 
 
 @router.patch("/admin/climbs/{climb_id}", tags=["climbs"])
-async def edit_climb():
+async def edit_climb(db: Engine = Depends(get_db)):
     """
     Either verify or reject a climb in the admin page.
     """
