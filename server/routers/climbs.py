@@ -24,6 +24,14 @@ async def get_climb(climb_id: int):
     return {"climb_id": climb_id}
 
 
+@router.get("/feed/climbs", tags=["climbs"])
+async def get_user_feed_climbs():
+    """
+    Retrieve verified climbs for a user's home feed.
+    """
+    return {"climbs": "climb 1, climb 2, climb 3"}
+
+
 @router.post("/users/{user_id}/climbs", tags=["climbs"])
 async def add_climb(user_id: int):
     """
