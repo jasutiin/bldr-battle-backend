@@ -62,13 +62,13 @@ async def get_climb(climb_id: int):
 
 
 @router.get("/feed/climbs", tags=["climbs"])
-async def get_user_feed_climbs(limit: int = 15, cursor: datetime = datetime.now(timezone.utc)):
+async def get_user_feed_climbs(limit: int = 15, cursor: int = -1):
     """
     Retrieve verified climbs for a user's home feed.
     """
 
     climbs = get_verified_climbs(limit, cursor)
-    new_cursor = climbs[-1].created_at
+    new_cursor = climbs[-1].id
 
     if not climbs:
         raise HTTPException(status_code=404, detail="Climb not found")

@@ -18,10 +18,16 @@ def get_climbs_by_user(user_id: int):
     return climbs
 
 
-def get_verified_climbs(num_rows: int, date: datetime):
+def get_verified_climbs(num_rows: int, id: int = -1):
   with Session(engine) as session:
-    statement = select(Climb).filter(Climb.created_at < date).fetch(num_rows)
-    climbs = session.execute(statement).scalars().all()
+    statement_no_id = select(Climb).order_by(Climb.id.desc()).fetch(num_rows)
+    statement_with_id = select(Climb).where(Climb.id < id).order_by(Climb.id.desc()).limit(num_rows)
+
+    if id == -1:
+      climbs = session.execute(statement_no_id).scalars().all()
+    else:
+      climbs = session.execute(statement_with_id).scalars().all()
+
     return climbs
 
 
