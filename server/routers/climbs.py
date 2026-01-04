@@ -1,6 +1,7 @@
 from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
-from db.repos.climbs import get_climbs_by_user, get_climb_from_db, create_climb
+from db.repos.climbs import get_climbs_by_user, get_climb_from_db, create_climb, get_verified_climbs
+from datetime import datetime, timezone
 
 router = APIRouter()
 
@@ -61,11 +62,18 @@ async def get_climb(climb_id: int):
 
 
 @router.get("/feed/climbs", tags=["climbs"])
-async def get_user_feed_climbs():
+async def get_user_feed_climbs(limit: int = 15, cursor: datetime = datetime.now(timezone.utc)):
     """
     Retrieve verified climbs for a user's home feed.
     """
-    return {"climbs": "climb 1, climb 2, climb 3"}
+
+    climbs = get_verified_climbs(limit, cursor)
+    new_cursor = climbs[-1].created_at
+
+    if not climbs:
+        raise HTTPException(status_code=404, detail="Climb not found")
+        
+    return {"cursor": new_cursor, "climbs": climbs}
 
 
 @router.post("/users/{user_id}/climbs", tags=["climbs"])

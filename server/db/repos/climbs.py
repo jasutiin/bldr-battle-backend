@@ -2,6 +2,7 @@ from db.models import Climb
 from db.db import engine
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from datetime import datetime
 
 def get_climb_from_db(id: int):
   with Session(engine) as session:
@@ -17,9 +18,9 @@ def get_climbs_by_user(user_id: int):
     return climbs
 
 
-def get_verified_climbs():
+def get_verified_climbs(num_rows: int, date: datetime):
   with Session(engine) as session:
-    statement = select(Climb).where(Climb.verified == True)
+    statement = select(Climb).filter(Climb.created_at < date).fetch(num_rows)
     climbs = session.execute(statement).scalars().all()
     return climbs
 
