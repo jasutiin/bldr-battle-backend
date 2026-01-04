@@ -1,11 +1,9 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.engine.base import Engine
-from db import get_db
+from fastapi import APIRouter
 
 router = APIRouter()
 
 @router.get("/users/{user_id}/climbs", tags=["climbs"])
-async def get_user_climbs(user_id: int, db: Engine = Depends(get_db)):
+async def get_user_climbs(user_id: int):
     """
     Retrieve all climbs for a specific user.
 
@@ -16,7 +14,7 @@ async def get_user_climbs(user_id: int, db: Engine = Depends(get_db)):
 
 
 @router.get("/climbs/{climb_id}", tags=["climbs"])
-async def get_climb(climb_id: int, db: Engine = Depends(get_db)):
+async def get_climb(climb_id: int):
     """
     Retrieve a climb by its climb Id.
 
@@ -27,7 +25,7 @@ async def get_climb(climb_id: int, db: Engine = Depends(get_db)):
 
 
 @router.get("/feed/climbs", tags=["climbs"])
-async def get_user_feed_climbs(db: Engine = Depends(get_db)):
+async def get_user_feed_climbs():
     """
     Retrieve verified climbs for a user's home feed.
     """
@@ -35,7 +33,7 @@ async def get_user_feed_climbs(db: Engine = Depends(get_db)):
 
 
 @router.post("/users/{user_id}/climbs", tags=["climbs"])
-async def add_climb(user_id: int, db: Engine = Depends(get_db)):
+async def add_climb(user_id: int):
     """
     Add a new climb for a specific user.
 
@@ -46,7 +44,7 @@ async def add_climb(user_id: int, db: Engine = Depends(get_db)):
 
 
 @router.patch("/climbs/{climb_id}", tags=["climbs"])
-async def edit_climb(climb_id: int, db: Engine = Depends(get_db)):
+async def edit_climb(climb_id: int):
     """
     Edit an existing climb's information.
 
@@ -57,7 +55,7 @@ async def edit_climb(climb_id: int, db: Engine = Depends(get_db)):
 
 
 @router.delete("/climbs/{climb_id}", tags=["climbs"])
-async def delete_climb(climb_id: int, db: Engine = Depends(get_db)):
+async def delete_climb(climb_id: int):
     """
     Delete a climb by its climb Id.
 

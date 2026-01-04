@@ -1,23 +1,31 @@
-from fastapi import APIRouter, Depends
-from sqlalchemy.engine.base import Engine
-from db import get_db
+from fastapi import APIRouter, HTTPException
+from db.repos.users import get_user as get_user_from_db
 
 router = APIRouter()
 
 @router.get("/users/{user_id}", tags=["users"])
-async def get_user(user_id: int, db: Engine = Depends(get_db)):
+async def get_user(user_id: int):
     """
     Retrieve a user by their user Id.
 
     :param user_id: The Id of the user to retrieve.
     :type user_id: int
     """
+    user = get_user_from_db(user_id)
+    
+    if not user:
+        raise HTTPException(status_code=404, detail="User not found")
 
-    return {"user_id": user_id}
+    return {
+        "id": user.id,
+        "username": user.username,
+        "email": user.email,
+        "created_at": user.created_at
+    }
 
 
 @router.post("/users", tags=["users"])
-async def add_user(db: Engine = Depends(get_db)):
+async def add_user():
     """
     Create a new user.
     """
@@ -26,7 +34,7 @@ async def add_user(db: Engine = Depends(get_db)):
 
 
 @router.patch("/users/{user_id}", tags=["users"])
-async def edit_user(user_id: int, db: Engine = Depends(get_db)):
+async def edit_user(user_id: int):
     """
     Edit an existing user's information.
 
@@ -38,7 +46,7 @@ async def edit_user(user_id: int, db: Engine = Depends(get_db)):
 
 
 @router.delete("/users/{user_id}", tags=["users"])
-async def delete_user(user_id: int, db: Engine = Depends(get_db)):
+async def delete_user(user_id: int):
     """
     Delete a user by their user Id.
 

@@ -1,4 +1,5 @@
 from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
 from dotenv import load_dotenv
 import os
 
@@ -11,6 +12,3 @@ except KeyError:
   exit(1)
 
 engine = create_engine(database_url)
-
-def get_db():
-  return engine
