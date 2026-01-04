@@ -15,6 +15,23 @@ resource "aws_instance" "bldr_battle_api_server_ec2" {
   instance_type = "t3.micro"
   subnet_id = aws_subnet.public_subnet.id
 
+  user_data = <<-EOF
+    #!/bin/bash
+
+    yum update -y
+    yum install docker -y
+    systemctl start docker
+    usermod -aG docker ec2-user
+
+    CNXN_STR="${var.db_connection_string}"
+
+    /usr/bin/docker run -d \
+      --name bldr-battle-backend \
+      -p 80:8080 \
+      -e SUPABASE_CONNECTION_STRING="$CNXN_STR" \
+      stenuji/bldr-battle-server:latest
+  EOF
+
   tags = {
     Name = "bldr-battle-api-server"
   }
