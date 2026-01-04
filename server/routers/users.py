@@ -1,7 +1,13 @@
 from fastapi import APIRouter, HTTPException
-from db.repos.users import get_user as get_user_from_db
+from pydantic import BaseModel
+from db.repos.users import get_user as get_user_from_db, create_user
 
 router = APIRouter()
+
+class UserCreate(BaseModel):
+    username: str
+    email: str
+
 
 @router.get("/users/{user_id}", tags=["users"])
 async def get_user(user_id: int):
@@ -11,8 +17,9 @@ async def get_user(user_id: int):
     :param user_id: The Id of the user to retrieve.
     :type user_id: int
     """
+
     user = get_user_from_db(user_id)
-    
+
     if not user:
         raise HTTPException(status_code=404, detail="User not found")
 
@@ -25,12 +32,22 @@ async def get_user(user_id: int):
 
 
 @router.post("/users", tags=["users"])
-async def add_user():
+async def add_user(user: UserCreate):
     """
     Create a new user.
     """
+    
+    new_user = create_user(user.username, user.email)
 
-    return {"message": "created a new user!"}
+    if not new_user:
+        raise HTTPException(status_code=400, detail="Failed to create user")
+    
+    return {
+        "id": new_user.id,
+        "username": new_user.username,
+        "email": new_user.email,
+        "created_at": new_user.created_at
+    }
 
 
 @router.patch("/users/{user_id}", tags=["users"])

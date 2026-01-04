@@ -3,7 +3,7 @@ from db.db import engine
 from sqlalchemy.orm import Session
 from sqlalchemy import select
 
-def get_climb(id: int):
+def get_climb_from_db(id: int):
   with Session(engine) as session:
     statement = select(Climb).where(Climb.id == id)
     climb = session.execute(statement).scalar_one_or_none()
