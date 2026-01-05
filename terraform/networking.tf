@@ -75,3 +75,27 @@ resource "aws_subnet" "private_subnet" {
     Name = "bldr-battle-private-route-subnet"
   }
 }
+
+resource "aws_security_group" "bldr_battle_api_sg" {
+  name        = "bldr-battle-api-sg"
+  description = "Allows HTTP/80 inbound and PostgreSQL/5432 outbound"
+  vpc_id      = aws_vpc.vpc.id
+
+  ingress {
+    from_port   = 80
+    to_port     = 80
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  tags = {
+    Name = "bldr-battle-api-sg"
+  }
+}

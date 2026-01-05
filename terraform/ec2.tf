@@ -42,6 +42,7 @@ resource "aws_instance" "bldr_battle_api_server_ec2" {
   instance_type = "t3.micro"
   subnet_id = aws_subnet.public_subnet.id
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
+  vpc_security_group_ids = [aws_security_group.bldr_battle_api_sg.id]
 
 user_data = <<-EOF
     #!/bin/bash
