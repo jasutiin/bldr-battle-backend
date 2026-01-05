@@ -11,3 +11,7 @@ now when you run docker locally, you should do `docker run --rm -it -p 8000:8000
 the reason we are doing the above steps is because we don't want to put the actual .env values inside the file system of the container. if we forget about it then publish the image to docker hub, then that's not good.
 
 also, when running terraform, make sure to do `terraform apply -var="db_connection_string=VALUE"`. this basically tells the ec2 instance what the value of the connection string is, which is passed down to the docker container after installing via the `user_data` attribute.
+
+write about why IPv4 vs. IPv6 affects connections to databases here:
+
+- had to change the connection from direct connection to using a session pooler in supabase because session pooler uses IPv4. talk about why this change was necessary here someday lol

@@ -54,7 +54,7 @@ user_data = <<-EOF
     
     /usr/bin/docker run -d \
       --name bldr-battle-backend \
-      -p 80:8080 \
+      -p 80:8000 \
       -e SUPABASE_CONNECTION_STRING="$CNXN_STR" \
       stenuji/bldr-battle-server:latest
   EOF
