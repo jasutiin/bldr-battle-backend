@@ -43,16 +43,15 @@ resource "aws_instance" "bldr_battle_api_server_ec2" {
   subnet_id = aws_subnet.public_subnet.id
   iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
 
-  user_data = <<-EOF
+user_data = <<-EOF
     #!/bin/bash
-
-    yum update -y
-    yum install docker -y
-    systemctl start docker
-    usermod -aG docker ec2-user
-
+    
+    sudo apt update -y
+    sudo apt install -y docker.io
+    sudo usermod -aG docker ubuntu
+    
     CNXN_STR="${var.db_connection_string}"
-
+    
     /usr/bin/docker run -d \
       --name bldr-battle-backend \
       -p 80:8080 \
