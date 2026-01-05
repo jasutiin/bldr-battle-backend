@@ -9,11 +9,39 @@ data "aws_ami" "ubuntu" {
   owners = ["099720109477"]
 }
 
+resource "aws_iam_role" "ssm_role" {
+  name = "EC2-SSM-SessionManager-Role"
+
+  assume_role_policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Action = "sts:AssumeRole"
+        Effect = "Allow"
+        Principal = {
+          Service = "ec2.amazonaws.com"
+        }
+      },
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "ssm_policy_attach" {
+  policy_arn = "arn:aws:iam::aws:policy/AmazonSSMManagedInstanceCore"
+  role       = aws_iam_role.ssm_role.name
+}
+
+resource "aws_iam_instance_profile" "ssm_profile" {
+  name = "EC2-SSM-SessionManager-Profile"
+  role = aws_iam_role.ssm_role.name
+}
+
 # this is the ec2 instance that holds the backend server
 resource "aws_instance" "bldr_battle_api_server_ec2" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.micro"
   subnet_id = aws_subnet.public_subnet.id
+  iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
 
   user_data = <<-EOF
     #!/bin/bash
@@ -47,6 +75,7 @@ resource "aws_instance" "bldr_battle_redis_server_ec2" {
   ami           = data.aws_ami.ubuntu.id
   instance_type = "t3.micro"
   subnet_id = aws_subnet.private_subnet.id
+  iam_instance_profile = aws_iam_instance_profile.ssm_profile.name
 
   tags = {
     Name = "bldr-battle-redis-server"
