@@ -1,13 +1,13 @@
 from fastapi import FastAPI
-from sqlalchemy import create_engine
-from dotenv import load_dotenv
-import os
 
-from routers import users, climbs, comments, admin
+from admin.router import router as admin_router
+from climbs.router import router as climbs_router
+from comments.router import router as comments_router
+from users.router import router as users_router
 
 app = FastAPI()
 
-app.include_router(users.router)
-app.include_router(climbs.router)
-app.include_router(comments.router)
-app.include_router(admin.router)
+app.include_router(users_router)
+app.include_router(climbs_router)
+app.include_router(comments_router)
+app.include_router(admin_router)
