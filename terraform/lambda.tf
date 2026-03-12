@@ -16,6 +16,32 @@ resource "aws_iam_role" "lambda_exec_role" {
   assume_role_policy = data.aws_iam_policy_document.assume_role.json
 }
 
+resource "aws_iam_role_policy_attachment" "lambda_basic_execution" {
+  role       = aws_iam_role.lambda_exec_role.name
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AWSLambdaBasicExecutionRole"
+}
+
+resource "aws_iam_role_policy" "lambda_ssm_read_policy" {
+  name = "lambda-ssm-read-policy"
+  role = aws_iam_role.lambda_exec_role.id
+
+  policy = jsonencode({
+    Version = "2012-10-17"
+    Statement = [
+      {
+        Effect = "Allow"
+        Action = ["ssm:GetParameter"]
+        Resource = "arn:aws:ssm:us-west-2:*:parameter/boulderbattle/db_pooler_url"
+      },
+      {
+        Effect = "Allow"
+        Action = ["kms:Decrypt"]
+        Resource = "*"
+      }
+    ]
+  })
+}
+
 # package the lambda function code
 data "archive_file" "archive_ldrbrd_reset_code" {
   type        = "zip"
@@ -47,6 +73,11 @@ resource "aws_lambda_function" "leaderboard_reset_function" {
     Environment = "production"
     Application = "example"
   }
+
+  depends_on = [
+    aws_iam_role_policy_attachment.lambda_basic_execution,
+    aws_iam_role_policy.lambda_ssm_read_policy,
+  ]
 }
 
 module "eventbridge" {
@@ -71,4 +102,11 @@ module "eventbridge" {
       }
     ]
   }
+}
+
+resource "aws_lambda_permission" "allow_eventbridge_invoke" {
+  statement_id  = "AllowExecutionFromEventBridge"
+  action        = "lambda:InvokeFunction"
+  function_name = aws_lambda_function.leaderboard_reset_function.function_name
+  principal     = "events.amazonaws.com"
 }
