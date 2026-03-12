@@ -19,8 +19,13 @@ resource "aws_iam_role" "lambda_exec_role" {
 # package the lambda function code
 data "archive_file" "archive_ldrbrd_reset_code" {
   type        = "zip"
-  source_file = "${path.module}/../lambda_code/main.py"
-  output_path = "${path.module}/../lambda_code/function.zip"
+  source_dir  = "${path.module}/../lambda_code"
+  output_path = "${path.module}/../function.zip"
+  excludes    = [
+    ".env",
+    ".env.example",
+    ".gitignore"
+  ]
 }
 
 resource "aws_lambda_function" "leaderboard_reset_function" {

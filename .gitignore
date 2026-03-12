@@ -1,0 +1,4 @@
+function.zip
+lambda_code/sqlalchemy/
+lambda_code/psycopg2/
+lambda_code/*.dist-info/
