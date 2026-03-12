@@ -1,3 +1,4 @@
+import os
 import boto3
 import logging
 import time
@@ -5,11 +6,17 @@ from datetime import datetime, timedelta
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import sessionmaker
 from sqlalchemy.pool import NullPool
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logger = logging.getLogger()
 logger.setLevel(logging.INFO)
 
 def get_db_url():
+    if os.environ.get("LOCAL_DEV"):
+        return os.environ["DATABASE_URL"]
+
     ssm = boto3.client("ssm")
     param = ssm.get_parameter(
         Name="/boulderbattle/db_pooler_url",
@@ -38,7 +45,7 @@ def aggregate_and_rank(session, period_start, period_end):
 def write_snapshots(session, results, period_start, period_end):
     rows = [
         {
-            "user_id": row.user_id,
+            "user_id": str(row.user_id),
             "period_start": period_start,
             "period_end": period_end,
             "total_points": row.total_points,
@@ -106,3 +113,7 @@ def lambda_handler(event, context):
                 session.close()
             if engine:
                 engine.dispose()
+
+if __name__ == "__main__":
+    result = lambda_handler({}, {})
+    print(result)
