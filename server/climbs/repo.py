@@ -1,4 +1,5 @@
-from datetime import datetime, timezone
+from datetime import datetime, timedelta, timezone
+from typing import cast
 from uuid import UUID
 
 from sqlalchemy import and_, func, or_, select, update
@@ -9,11 +10,33 @@ from db.models import Climb
 
 
 GRADE_POINTS = {
-    "A": 1,
-    "B": 2,
-    "C": 3,
-    "D": 4,
+    "A": 100,
+    "B": 200,
+    "C": 400,
+    "D": 800,
 }
+
+LEADERBOARD_PERIOD_DAYS = 14
+
+
+def _ensure_utc(dt: datetime) -> datetime:
+    if dt.tzinfo is None:
+        return dt.replace(tzinfo=timezone.utc)
+    return dt.astimezone(timezone.utc)
+
+
+def _get_effective_date_for_verification(created_at: datetime, now_utc: datetime) -> datetime:
+    created_at_utc = _ensure_utc(created_at)
+    period_duration = timedelta(days=LEADERBOARD_PERIOD_DAYS)
+    current_period_start = now_utc - period_duration
+
+    # if the climb is in the current period, preserve submission time.
+    if created_at_utc >= current_period_start:
+        return created_at_utc
+
+    # carry old submissions into the same relative day/time of the current period.
+    relative_offset = (created_at_utc - current_period_start) % period_duration
+    return current_period_start + relative_offset
 
 
 def get_climb_from_db(climb_id):
@@ -91,13 +114,17 @@ def verify_climb(climb_id):
         if points is None:
             return None
 
+        now_utc = datetime.now(timezone.utc)
+        created_at = cast(datetime, climb.created_at)
+        effective_date = _get_effective_date_for_verification(created_at, now_utc)
+
         session.execute(
             update(Climb)
             .where(Climb.id == climb_id)
             .values(
                 verified=True,
                 points=points,
-                effective_date=datetime.now(timezone.utc),
+                effective_date=effective_date,
             )
         )
         session.commit()
